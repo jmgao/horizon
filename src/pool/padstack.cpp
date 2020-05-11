@@ -148,8 +148,7 @@ ParameterProgram::CommandHandler Padstack::MyParameterProgram::get_command(const
 
 Padstack::Padstack(const Padstack &ps)
     : uuid(ps.uuid), name(ps.name), type(ps.type), polygons(ps.polygons), holes(ps.holes), shapes(ps.shapes),
-      parameter_set(ps.parameter_set), parameters_required(ps.parameters_required),
-      parameter_program(ps.parameter_program)
+      parameter_def(ps.parameter_def), parameter_set(ps.parameter_set), parameter_program(ps.parameter_program)
 {
     update_refs();
 }
@@ -163,7 +162,6 @@ void Padstack::operator=(Padstack const &ps)
     holes = ps.holes;
     shapes = ps.shapes;
     parameter_set = ps.parameter_set;
-    parameters_required = ps.parameters_required;
     parameter_program = ps.parameter_program;
     update_refs();
 }
@@ -205,12 +203,8 @@ Padstack::Padstack(const UUID &uu, const json &j)
     if (j.count("parameter_set")) {
         parameter_set = parameter_set_from_json(j.at("parameter_set"));
     }
-    if (j.count("parameters_required")) {
-        const json &o = j["parameters_required"];
-        for (auto it = o.cbegin(); it != o.cend(); ++it) {
-            parameters_required.insert(parameter_id_from_string(it.value()));
-        }
-    }
+
+    parameter_def = ParameterDef::deserialize(j);
 } // namespace horizon
 
 Padstack Padstack::new_from_file(const std::string &filename)
@@ -232,6 +226,7 @@ json Padstack::serialize() const
     j["well_known_name"] = well_known_name;
     j["padstack_type"] = type_lut.lookup_reverse(type);
     j["parameter_program"] = parameter_program.get_code();
+    parameter_def.serialize(j);
     j["parameter_set"] = parameter_set_serialize(parameter_set);
     j["polygons"] = json::object();
     for (const auto &it : polygons) {
@@ -244,10 +239,6 @@ json Padstack::serialize() const
     j["shapes"] = json::object();
     for (const auto &it : shapes) {
         j["shapes"][(std::string)it.first] = it.second.serialize();
-    }
-    j["parameters_required"] = json::array();
-    for (const auto &it : parameters_required) {
-        j["parameters_required"].push_back(parameter_id_to_string(it));
     }
     return j;
 }
@@ -294,28 +285,9 @@ const std::map<int, Layer> &Padstack::get_layers() const
     return layers;
 }
 
-static void copy_param(ParameterSet &dest, const ParameterSet &src, ParameterID id)
-{
-    if (src.count(id))
-        dest[id] = src.at(id);
-}
-
-static void copy_param(ParameterSet &dest, const ParameterSet &src, const std::set<ParameterID> &ids)
-{
-    for (const auto id : ids) {
-        copy_param(dest, src, id);
-    }
-}
-
 std::pair<bool, std::string> Padstack::apply_parameter_set(const ParameterSet &ps)
 {
-    auto ps_this = parameter_set;
-    copy_param(ps_this, ps,
-               {ParameterID::PAD_HEIGHT, ParameterID::PAD_WIDTH, ParameterID::PAD_DIAMETER,
-                ParameterID::SOLDER_MASK_EXPANSION, ParameterID::PASTE_MASK_CONTRACTION, ParameterID::HOLE_DIAMETER,
-                ParameterID::HOLE_LENGTH, ParameterID::VIA_DIAMETER, ParameterID::HOLE_SOLDER_MASK_EXPANSION,
-                ParameterID::VIA_SOLDER_MASK_EXPANSION, ParameterID::HOLE_ANNULAR_RING, ParameterID::CORNER_RADIUS});
-    return parameter_program.run(ps_this);
+    return parameter_program.run(parameter_set_merge(parameter_set, ps));
 }
 
 void Padstack::expand_inner(unsigned int n_inner)

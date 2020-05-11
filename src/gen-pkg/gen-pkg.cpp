@@ -46,7 +46,7 @@ static void make_courtyard_poly(Package &pkg, int &uuid_idx, int64_t w, int64_t 
     poly.layer = BoardLayers::TOP_COURTYARD;
     poly.parameter_class = "courtyard";
 
-    pkg.parameter_set[ParameterID::COURTYARD_EXPANSION] = .25_mm;
+    pkg.parameter_set[BuiltinParameter::COURTYARD_EXPANSION] = .25_mm;
     std::stringstream ss;
     ss.imbue(std::locale::classic());
     ss << std::fixed << std::setprecision(3);
@@ -162,8 +162,8 @@ static Package make_package_pinhd_1x(unsigned int n_pads)
                             .first->second;
         pad.name = std::to_string(i + 1);
         pad.placement.shift.y = y0 - i * pitch;
-        pad.parameter_set[ParameterID::HOLE_DIAMETER] = 1_mm;
-        pad.parameter_set[ParameterID::PAD_DIAMETER] = 1.7_mm;
+        pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = 1_mm;
+        pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = 1.7_mm;
     }
 
     make_package_poly(pkg, uuid_idx, pitch, n_pads * pitch);
@@ -203,8 +203,8 @@ static Package make_package_pinhd_2x(unsigned int n_pads)
         pad.name = std::to_string(i + 1);
         pad.placement.shift.y = y0 - i / 2 * pitch;
         pad.placement.shift.x = i & 1 ? pitch / 2 : -pitch / 2;
-        pad.parameter_set[ParameterID::HOLE_DIAMETER] = 1_mm;
-        pad.parameter_set[ParameterID::PAD_DIAMETER] = 1.7_mm;
+        pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = 1_mm;
+        pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = 1.7_mm;
     }
 
     make_package_poly(pkg, uuid_idx, pitch * 2, n_pads * pitch);
@@ -245,8 +245,8 @@ static Package make_package_idc_254_vertical(unsigned int n_pads)
         pad.name = std::to_string(i + 1);
         pad.placement.shift.y = y0 - i / 2 * pitch;
         pad.placement.shift.x = i & 1 ? pitch / 2 : -pitch / 2;
-        pad.parameter_set[ParameterID::HOLE_DIAMETER] = 1_mm;
-        pad.parameter_set[ParameterID::PAD_DIAMETER] = 1.7_mm;
+        pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = 1_mm;
+        pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = 1.7_mm;
     }
 
     int64_t w = 8.8_mm;

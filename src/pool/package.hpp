@@ -93,6 +93,7 @@ public:
     std::map<UUID, Keepout> keepouts;
     std::map<UUID, Dimension> dimensions;
 
+    ParameterDef parameter_def;
     ParameterSet parameter_set;
     MyParameterProgram parameter_program;
     PackageRules rules;

@@ -55,7 +55,15 @@ std::string ImpPackage::get_hud_text(std::set<SelectableRef> &sel)
         const auto &pad = core_package.get_package()->pads.at(sel_find_one(sel, ObjectType::PAD).uuid);
         s += "<b>Pad " + pad.name + "</b>\n";
         for (const auto &it : pad.parameter_set) {
-            s += parameter_id_to_name(it.first) + ": " + dim_to_string(it.second, true) + "\n";
+            if (auto name = pad.parameter_def()->lookup_name(it.first)) {
+                s.append(*name);
+            }
+            else {
+                s += "<unknown parameter '";
+                s += it.first.id();
+                s += "'>";
+            }
+            s += ": " + dim_to_string(it.second, true) + "\n";
         }
         sel_erase_type(sel, ObjectType::PAD);
     }
@@ -118,8 +126,8 @@ void ImpPackage::construct()
     footprint_generator_window = FootprintGeneratorWindow::create(main_window, &core_package);
     footprint_generator_window->signal_generated().connect(sigc::mem_fun(*this, &ImpBase::canvas_update_from_pp));
 
-    auto parameter_window =
-            new ParameterWindow(main_window, &core_package.parameter_program_code, &core_package.parameter_set);
+    auto parameter_window = new ParameterWindow(main_window, &core_package.parameter_program_code,
+                                                &core_package.parameter_def, &core_package.parameter_set);
     parameter_window->signal_changed().connect([this] { core_package.set_needs_save(); });
     {
         auto button = Gtk::manage(new Gtk::Button("Parameters..."));
@@ -158,8 +166,8 @@ void ImpPackage::construct()
                       "+xy\nset-polygon [ courtyard rectangle ";
                 ss << c.x / 1e6 << "mm " << c.y / 1e6 << "mm ]";
                 parameter_window->insert_text(ss.str());
-                parameter_window->get_parameter_set_editor()->add_or_set_parameter(ParameterID::COURTYARD_EXPANSION,
-                                                                                   0.25_mm);
+                parameter_window->get_parameter_set_editor()->add_or_set_parameter(
+                        BuiltinParameter::COURTYARD_EXPANSION, 0.25_mm);
                 parameter_window->signal_apply().emit();
             }
             else {

@@ -26,6 +26,7 @@ public:
     uuid_ptr<const Padstack> vpp_padstack;
     Padstack padstack;
 
+    const ParameterDef parameter_def;
     ParameterSet parameter_set;
 
     bool from_rules = true;

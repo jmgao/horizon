@@ -226,36 +226,36 @@ void KiCadPackageParser::parse_pad(const SEXPR::SEXPR *data)
         pad.placement.shift = pos;
         pad.placement.set_angle_deg(angle);
         if (pad_type == PadType::SMD_RECT) {
-            pad.parameter_set[ParameterID::PAD_WIDTH] = size.x;
-            pad.parameter_set[ParameterID::PAD_HEIGHT] = size.y;
+            pad.parameter_set[BuiltinParameter::PAD_WIDTH] = size.x;
+            pad.parameter_set[BuiltinParameter::PAD_HEIGHT] = size.y;
         }
         else if (pad_type == PadType::SMD_RECT_ROUND) {
-            pad.parameter_set[ParameterID::PAD_WIDTH] = size.x;
-            pad.parameter_set[ParameterID::PAD_HEIGHT] = size.y;
-            pad.parameter_set[ParameterID::CORNER_RADIUS] = std::min(size.x, size.y) * roundrect_rratio;
+            pad.parameter_set[BuiltinParameter::PAD_WIDTH] = size.x;
+            pad.parameter_set[BuiltinParameter::PAD_HEIGHT] = size.y;
+            pad.parameter_set[BuiltinParameter::CORNER_RADIUS] = std::min(size.x, size.y) * roundrect_rratio;
         }
         else if (pad_type == PadType::SMD_CIRC) {
-            pad.parameter_set[ParameterID::PAD_DIAMETER] = size.x;
+            pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = size.x;
         }
         else if (pad_type == PadType::TH_CIRC) {
-            pad.parameter_set[ParameterID::PAD_DIAMETER] = size.x;
-            pad.parameter_set[ParameterID::HOLE_DIAMETER] = drill;
+            pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = size.x;
+            pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = drill;
         }
         else if (pad_type == PadType::NPTH_CIRC) {
-            pad.parameter_set[ParameterID::HOLE_DIAMETER] = drill;
+            pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = drill;
         }
         else if (pad_type == PadType::TH_OBROUND) {
             if (size.x > size.y) {
-                pad.parameter_set[ParameterID::PAD_WIDTH] = size.x;
-                pad.parameter_set[ParameterID::PAD_HEIGHT] = size.y;
-                pad.parameter_set[ParameterID::HOLE_DIAMETER] = drill_length;
-                pad.parameter_set[ParameterID::HOLE_LENGTH] = drill;
+                pad.parameter_set[BuiltinParameter::PAD_WIDTH] = size.x;
+                pad.parameter_set[BuiltinParameter::PAD_HEIGHT] = size.y;
+                pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = drill_length;
+                pad.parameter_set[BuiltinParameter::HOLE_LENGTH] = drill;
             }
             else {
-                pad.parameter_set[ParameterID::PAD_WIDTH] = size.y;
-                pad.parameter_set[ParameterID::PAD_HEIGHT] = size.x;
-                pad.parameter_set[ParameterID::HOLE_DIAMETER] = drill;
-                pad.parameter_set[ParameterID::HOLE_LENGTH] = drill_length;
+                pad.parameter_set[BuiltinParameter::PAD_WIDTH] = size.y;
+                pad.parameter_set[BuiltinParameter::PAD_HEIGHT] = size.x;
+                pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = drill;
+                pad.parameter_set[BuiltinParameter::HOLE_LENGTH] = drill_length;
                 pad.placement.inc_angle_deg(90);
             }
         }

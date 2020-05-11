@@ -2,7 +2,8 @@
 #include "widgets/parameter_set_editor.hpp"
 
 namespace horizon {
-ParameterWindow::ParameterWindow(Gtk::Window *p, std::string *ppc, ParameterSet *ps, ParameterSetEditor *editor)
+ParameterWindow::ParameterWindow(Gtk::Window *p, std::string *ppc, ParameterDef *pd, ParameterSet *ps,
+                                 ParameterSetEditor *editor)
     : Gtk::Window()
 {
     set_transient_for(*p);
@@ -53,7 +54,7 @@ ParameterWindow::ParameterWindow(Gtk::Window *p, std::string *ppc, ParameterSet 
     if (editor)
         parameter_set_editor = Gtk::manage(editor);
     else
-        parameter_set_editor = Gtk::manage(new ParameterSetEditor(ps));
+        parameter_set_editor = Gtk::manage(new ParameterSetEditor(pd, ps));
 
     parameter_set_editor->signal_changed().connect([this] { s_signal_changed.emit(); });
     box->pack_start(*parameter_set_editor, false, false, 0);

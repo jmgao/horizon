@@ -22,7 +22,6 @@ Via::Via(const UUID &uu, const json &j, Board *brd, ViaPadstackProvider *vpp)
         vpp_padstack.uuid = j.at("padstack").get<std::string>();
     }
 
-
     if (j.count("net_set")) {
         if (brd)
             net_set = &brd->block->nets.at(j.at("net_set").get<std::string>());
@@ -33,8 +32,8 @@ Via::Via(const UUID &uu, const json &j, Board *brd, ViaPadstackProvider *vpp)
 
 Via::Via(const UUID &uu, const Padstack *ps) : uuid(uu), vpp_padstack(ps), padstack(*vpp_padstack)
 {
-    parameter_set[ParameterID::VIA_DIAMETER] = .5_mm;
-    parameter_set[ParameterID::HOLE_DIAMETER] = .2_mm;
+    parameter_set[BuiltinParameter::VIA_DIAMETER] = .5_mm;
+    parameter_set[BuiltinParameter::HOLE_DIAMETER] = .2_mm;
     padstack.apply_parameter_set(parameter_set);
 }
 

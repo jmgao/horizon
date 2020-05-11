@@ -48,7 +48,7 @@ int main(void)
         exit(1);
     }
     ParameterSet ps = {
-            {ParameterID::PAD_WIDTH, 2},
+            {BuiltinParameter::PAD_WIDTH, 2},
     };
     auto r = pgm.run(ps);
     std::cout << "run " << r.first << " " << r.second << std::endl;

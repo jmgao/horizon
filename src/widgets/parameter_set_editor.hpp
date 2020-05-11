@@ -1,5 +1,6 @@
 #pragma once
 #include <gtkmm.h>
+#include <variant>
 #include "parameter/set.hpp"
 #include "util/changeable.hpp"
 
@@ -7,8 +8,13 @@ namespace horizon {
 class ParameterSetEditor : public Gtk::Box, public Changeable {
     friend class ParameterEditor;
 
+private:
+    ParameterSetEditor(std::variant<ParameterDef *, const ParameterDef *> pd, ParameterSet *ps, bool populate_init,
+                       int dummy);
+
 public:
-    ParameterSetEditor(ParameterSet *ps, bool populate_init = true);
+    ParameterSetEditor(const ParameterDef *pd, ParameterSet *ps, bool populate_init = false);
+    ParameterSetEditor(ParameterDef *pd, ParameterSet *ps, bool populate_init = false);
     void populate();
     void focus_first();
     void set_button_margin_left(int margin);
@@ -32,11 +38,21 @@ protected:
     {
     }
 
+
+    std::string lookup_parameter_name(ParameterID parameter) const;
+    const ParameterDef *get_parameter_def() const;
+    ParameterDef *get_mutable_parameter_def();
+
+private:
+    std::variant<ParameterDef *, const ParameterDef *> parameter_def;
+
+protected:
+    ParameterSet *parameter_set;
+
 private:
     Gtk::MenuButton *add_button = nullptr;
     Gtk::ListBox *listbox = nullptr;
     Gtk::Box *popover_box = nullptr;
-    ParameterSet *parameter_set;
     Glib::RefPtr<Gtk::SizeGroup> sg_label;
     void update_popover_box();
 

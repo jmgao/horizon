@@ -23,8 +23,7 @@ void ImpPadstack::canvas_update()
 
 class ImpPadstackParameterSetEditor : public ParameterSetEditor {
 public:
-    ImpPadstackParameterSetEditor(ParameterSet *ps, std::set<ParameterID> *ps_reqd)
-        : ParameterSetEditor(ps, false), parameters_required(ps_reqd)
+    ImpPadstackParameterSetEditor(ParameterDef *pd, ParameterSet *ps) : ParameterSetEditor(pd, ps, false)
     {
     }
 
@@ -33,14 +32,14 @@ private:
     {
         auto w = Gtk::manage(new Gtk::CheckButton("Required"));
         w->set_tooltip_text("Parameter has to be set in pad");
-        w->set_active(parameters_required->count(id));
+        w->set_active(get_mutable_parameter_def()->parameters_required.count(id));
         w->signal_toggled().connect([this, id, w] {
             s_signal_changed.emit();
             if (w->get_active()) {
-                parameters_required->insert(id);
+                get_mutable_parameter_def()->parameters_required.insert(id);
             }
             else {
-                parameters_required->erase(id);
+                get_mutable_parameter_def()->parameters_required.erase(id);
             }
         });
         return w;
@@ -48,10 +47,8 @@ private:
 
     void erase_cb(ParameterID id) override
     {
-        parameters_required->erase(id);
+        get_mutable_parameter_def()->parameters_required.erase(id);
     }
-
-    std::set<ParameterID> *parameters_required;
 };
 
 void ImpPadstack::construct()
@@ -94,10 +91,10 @@ void ImpPadstack::construct()
     type_combo->set_active_id(Padstack::type_lut.lookup_reverse(core_padstack.get_padstack()->type));
     type_combo->signal_changed().connect([this] { core_padstack.set_needs_save(); });
 
-    auto editor = new ImpPadstackParameterSetEditor(&core_padstack.parameter_set, &core_padstack.parameters_required);
+    auto editor = new ImpPadstackParameterSetEditor(&core_padstack.parameter_def, &core_padstack.parameter_set);
     editor->populate();
     auto parameter_window = new ParameterWindow(main_window, &core_padstack.parameter_program_code,
-                                                &core_padstack.parameter_set, editor);
+                                                &core_padstack.parameter_def, &core_padstack.parameter_set, editor);
     parameter_window->signal_changed().connect([this] { core_padstack.set_needs_save(); });
     parameter_window_add_polygon_expand(parameter_window);
     {

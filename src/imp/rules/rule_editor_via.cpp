@@ -46,7 +46,7 @@ void RuleEditorVia::populate()
     grid->show_all();
     editor->pack_start(*grid, false, false, 0);
 
-    auto pse = Gtk::manage(new ParameterSetEditor(&rule2->parameter_set));
+    auto pse = Gtk::manage(new ParameterSetEditor(&rule2->parameter_def, &rule2->parameter_set));
     pse->set_button_margin_left(20);
     pse->show();
     editor->pack_start(*pse, true, true, 0);

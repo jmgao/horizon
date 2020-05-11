@@ -4,6 +4,9 @@
 #include <map>
 #include <sstream>
 #include <stdint.h>
+#include <string>
+
+using namespace std::string_literals;
 
 namespace horizon {
 ParameterProgram::ParameterProgram(const std::string &s) : code(s)
@@ -172,12 +175,9 @@ std::pair<bool, std::string> ParameterProgram::run(const ParameterSet &pset)
                     return {true, "get-parameter requires one string argument"};
                 }
                 auto arg = dynamic_cast<TokenString *>(tok->arguments.at(0).get());
-                ParameterID pid = parameter_id_from_string(arg->string);
-                if (pid == ParameterID::INVALID) {
-                    return {true, "invalid parameter " + arg->string};
-                }
+                ParameterID pid = ParameterID::from_string(arg->string);
                 if (pset.count(pid) == 0) {
-                    return {true, "parameter not found: " + parameter_id_to_string(pid)};
+                    return {true, "parameter not found: "s.append(pid.id())};
                 }
                 stack.push_back(pset.at(pid));
             }

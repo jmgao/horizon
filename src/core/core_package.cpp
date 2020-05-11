@@ -11,8 +11,8 @@
 namespace horizon {
 CorePackage::CorePackage(const std::string &filename, Pool &pool)
     : package(Package::new_from_file(filename, pool)), m_filename(filename), rules(package.rules),
-      parameter_program_code(package.parameter_program.get_code()), parameter_set(package.parameter_set),
-      models(package.models), default_model(package.default_model)
+      parameter_program_code(package.parameter_program.get_code()), parameter_def(package.parameter_def),
+      parameter_set(package.parameter_set), models(package.models), default_model(package.default_model)
 {
     rebuild();
     m_pool = &pool;
@@ -251,6 +251,7 @@ const std::string &CorePackage::get_filename() const
 
 void CorePackage::save(const std::string &suffix)
 {
+    package.parameter_def = parameter_def;
     package.parameter_set = parameter_set;
     package.parameter_program.set_code(parameter_program_code);
     package.models = models;

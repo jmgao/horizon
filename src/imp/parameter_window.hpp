@@ -10,7 +10,8 @@ namespace horizon {
 
 class ParameterWindow : public Gtk::Window, public Changeable {
 public:
-    ParameterWindow(Gtk::Window *p, std::string *ppc, ParameterSet *ps, class ParameterSetEditor *ed = nullptr);
+    ParameterWindow(Gtk::Window *p, std::string *ppc, ParameterDef *pd, ParameterSet *ps,
+                    class ParameterSetEditor *ed = nullptr);
     void set_can_apply(bool v);
     void set_error_message(const std::string &s);
     void add_button(Gtk::Widget *button);

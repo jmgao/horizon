@@ -461,11 +461,11 @@ bool ToolWrapper::prepareInteractive()
         auto netcode = m_startItem->Net();
         auto net = tool->iface->get_net_for_code(netcode);
         auto vps = tool->rules->get_via_parameter_set(net);
-        if (vps.count(horizon::ParameterID::VIA_DIAMETER)) {
-            sizes.SetViaDiameter(vps.at(horizon::ParameterID::VIA_DIAMETER));
+        if (vps.count(horizon::BuiltinParameter::VIA_DIAMETER)) {
+            sizes.SetViaDiameter(vps.at(horizon::BuiltinParameter::VIA_DIAMETER));
         }
-        if (vps.count(horizon::ParameterID::HOLE_DIAMETER)) {
-            sizes.SetViaDrill(vps.at(horizon::ParameterID::HOLE_DIAMETER));
+        if (vps.count(horizon::BuiltinParameter::HOLE_DIAMETER)) {
+            sizes.SetViaDrill(vps.at(horizon::BuiltinParameter::HOLE_DIAMETER));
         }
         if (net) {
             auto &highlights = tool->imp->get_highlights();

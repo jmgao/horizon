@@ -4,6 +4,8 @@
 #include "nlohmann/json.hpp"
 #include "board/board_layers.hpp"
 
+using namespace std::string_literals;
+
 namespace horizon {
 
 Package::MyParameterProgram::MyParameterProgram(Package *p, const std::string &c) : ParameterProgramPolygon(c), pkg(p)
@@ -127,6 +129,8 @@ Package::Package(const UUID &uu, const json &j, Pool &pool)
     if (j.count("tags")) {
         tags = j.at("tags").get<std::set<std::string>>();
     }
+
+    parameter_def = ParameterDef::deserialize(j);
     if (j.count("parameter_set")) {
         parameter_set = parameter_set_from_json(j.at("parameter_set"));
     }
@@ -250,7 +254,7 @@ static void copy_param(ParameterSet &dest, const ParameterSet &src, const std::s
 std::pair<bool, std::string> Package::apply_parameter_set(const ParameterSet &ps)
 {
     auto ps_this = parameter_set;
-    copy_param(ps_this, ps, ParameterID::COURTYARD_EXPANSION);
+    copy_param(ps_this, ps, BuiltinParameter::COURTYARD_EXPANSION);
     {
         auto r = parameter_program.run(ps_this);
         if (r.first) {
@@ -261,8 +265,8 @@ std::pair<bool, std::string> Package::apply_parameter_set(const ParameterSet &ps
     for (auto &it : pads) {
         auto ps_pad = it.second.parameter_set;
         copy_param(ps_pad, ps,
-                   {ParameterID::SOLDER_MASK_EXPANSION, ParameterID::PASTE_MASK_CONTRACTION,
-                    ParameterID::HOLE_SOLDER_MASK_EXPANSION});
+                   {BuiltinParameter::SOLDER_MASK_EXPANSION, BuiltinParameter::PASTE_MASK_CONTRACTION,
+                    BuiltinParameter::HOLE_SOLDER_MASK_EXPANSION});
         auto r = it.second.padstack.apply_parameter_set(ps_pad);
         if (r.first) {
             return {r.first, "Pad " + it.second.name + ": " + r.second};
@@ -313,9 +317,9 @@ void Package::update_warnings()
         if (!x.second) {
             warnings.emplace_back(it.second.placement.shift, "duplicate pad name");
         }
-        for (auto p : it.second.pool_padstack->parameters_required) {
+        for (auto p : it.second.pool_padstack->parameter_def.parameters_required) {
             if (it.second.parameter_set.count(p) == 0) {
-                warnings.emplace_back(it.second.placement.shift, "missing parameter " + parameter_id_to_name(p));
+                warnings.emplace_back(it.second.placement.shift, "missing parameter "s.append(p.id()));
             }
         }
     }
@@ -378,8 +382,11 @@ json Package::serialize() const
     j["name"] = name;
     j["manufacturer"] = manufacturer;
     j["tags"] = tags;
+
     j["parameter_program"] = parameter_program.get_code();
     j["parameter_set"] = parameter_set_serialize(parameter_set);
+    parameter_def.serialize(j);
+
     if (alternate_for && alternate_for->uuid != uuid)
         j["alternate_for"] = (std::string)alternate_for->uuid;
     j["models"] = json::object();

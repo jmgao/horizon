@@ -96,7 +96,7 @@ EditViaDialog::EditViaDialog(Gtk::Window *parent, std::set<Via *> &vias, ViaPads
         auto via = viamap.at(uu);
         if (editor)
             delete editor;
-        editor = Gtk::manage(new MyParameterSetEditor(&via->parameter_set, false));
+        editor = Gtk::manage(new MyParameterSetEditor(&via->parameter_def, &via->parameter_set, false));
         editor->populate();
         editor->signal_apply_all().connect([vias, via](ParameterID id) {
             for (auto it : vias) {

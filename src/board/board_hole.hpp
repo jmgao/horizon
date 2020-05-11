@@ -21,6 +21,8 @@ public:
     const Padstack *pool_padstack;
     Padstack padstack;
     Placement placement;
+
+    const ParameterDef parameter_def;
     ParameterSet parameter_set;
 
     uuid_ptr<Net> net = nullptr;

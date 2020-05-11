@@ -22,7 +22,8 @@ public:
     ParameterEditor(ParameterID id, ParameterSetEditor *pse)
         : Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 8), parameter_id(id), parent(pse)
     {
-        auto la = Gtk::manage(new Gtk::Label(parameter_id_to_name(id)));
+        std::string parameter_name = pse->lookup_parameter_name(id);
+        auto la = Gtk::manage(new Gtk::Label(parameter_name));
         la->get_style_context()->add_class("dim-label");
         la->set_xalign(1);
         parent->sg_label->add_widget(*la);
@@ -87,8 +88,9 @@ private:
     ParameterSetEditor *parent;
 };
 
-ParameterSetEditor::ParameterSetEditor(ParameterSet *ps, bool populate_init)
-    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), parameter_set(ps)
+ParameterSetEditor::ParameterSetEditor(std::variant<ParameterDef *, const ParameterDef *> pd, ParameterSet *ps,
+                                       bool populate_init, int)
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), parameter_def(pd), parameter_set(ps)
 {
     add_button = Gtk::manage(new Gtk::MenuButton());
     add_button->set_label("Add parameter");
@@ -125,6 +127,16 @@ ParameterSetEditor::ParameterSetEditor(ParameterSet *ps, bool populate_init)
         pack_start(*sep, false, false, 0);
     }
     pack_start(*sc, true, true, 0);
+}
+
+ParameterSetEditor::ParameterSetEditor(const ParameterDef *pd, ParameterSet *ps, bool populate_init)
+    : ParameterSetEditor(pd, ps, populate_init, 0)
+{
+}
+
+ParameterSetEditor::ParameterSetEditor(ParameterDef *pd, ParameterSet *ps, bool populate_init)
+    : ParameterSetEditor(pd, ps, populate_init, 0)
+{
 }
 
 void ParameterSetEditor::set_button_margin_left(int margin)
@@ -168,24 +180,74 @@ void ParameterSetEditor::add_or_set_parameter(ParameterID param, int64_t value)
     s_signal_changed.emit();
 }
 
+const ParameterDef *ParameterSetEditor::get_parameter_def() const
+{
+    if (auto def = std::get_if<const ParameterDef *>(&this->parameter_def)) {
+        return *def;
+    }
+    else {
+        return std::get<ParameterDef *>(this->parameter_def);
+    }
+}
+
+ParameterDef *ParameterSetEditor::get_mutable_parameter_def()
+{
+    if (auto def = std::get_if<ParameterDef *>(&this->parameter_def)) {
+        return *def;
+    }
+    else {
+        abort();
+    }
+}
+
+std::string ParameterSetEditor::lookup_parameter_name(ParameterID parameter) const
+{
+    std::string name;
+    if (auto parameter_name = get_parameter_def()->lookup_name(parameter)) {
+        name = *parameter_name;
+    }
+    else {
+        name = "<unknown custom parameter '";
+        name.append(parameter.id());
+        name += "'>";
+    }
+
+    return name;
+}
+
 void ParameterSetEditor::update_popover_box()
 {
     for (auto it : popover_box->get_children()) {
         delete it;
     }
-    for (int i = 1; i < (static_cast<int>(ParameterID::N_PARAMETERS)); i++) {
-        auto id = static_cast<ParameterID>(i);
-        if (parameter_set->count(id) == 0) {
-            auto bu = Gtk::manage(new Gtk::Button(parameter_id_to_name(id)));
-            bu->signal_clicked().connect([this, id] {
+
+    bool add_custom;
+    const ParameterDef *pd;
+    if (auto def = std::get_if<const ParameterDef *>(&this->parameter_def)) {
+        pd = *def;
+        add_custom = false;
+    }
+    else {
+        pd = std::get<ParameterDef *>(this->parameter_def);
+        add_custom = true;
+    }
+
+    // TODO: Implement adding custom parameters.
+    static_cast<void>(add_custom);
+
+    for (const auto &parameter : pd->parameters()) {
+        if (parameter_set->count(parameter) == 0) {
+            std::string name = lookup_parameter_name(parameter);
+            auto bu = Gtk::manage(new Gtk::Button(name));
+            bu->signal_clicked().connect([this, parameter] {
                 auto popover = dynamic_cast<Gtk::Popover *>(popover_box->get_ancestor(GTK_TYPE_POPOVER));
 #if GTK_CHECK_VERSION(3, 22, 0)
                 popover->popdown();
 #else
                 popover->hide();
 #endif
-                (*parameter_set)[id] = 0.5_mm;
-                auto pe = Gtk::manage(new ParameterEditor(id, this));
+                (*parameter_set)[parameter] = 0.5_mm;
+                auto pe = Gtk::manage(new ParameterEditor(parameter, this));
                 listbox->add(*pe);
                 s_signal_changed.emit();
             });

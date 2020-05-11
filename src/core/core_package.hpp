@@ -74,6 +74,7 @@ private:
 
 public:
     std::string parameter_program_code;
+    ParameterDef parameter_def;
     ParameterSet parameter_set;
 
     std::map<UUID, Package::Model> models;

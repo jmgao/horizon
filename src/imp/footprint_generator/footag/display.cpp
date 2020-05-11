@@ -378,17 +378,17 @@ void FootagDisplay::calc(Package *pkg, const struct footag_spec *s)
         pad.name = p->name;
         pad.placement.set_angle(p->angle);
         if (p->stack == FOOTAG_PADSTACK_SMD_CIRC || p->stack == FOOTAG_PADSTACK_TH_ROUND) {
-            pad.parameter_set[ParameterID::PAD_DIAMETER] = p->diam * 1_mm;
+            pad.parameter_set[BuiltinParameter::PAD_DIAMETER] = p->diam * 1_mm;
         }
         else {
-            pad.parameter_set[ParameterID::PAD_HEIGHT] = p->h * 1_mm;
-            pad.parameter_set[ParameterID::PAD_WIDTH] = p->w * 1_mm;
+            pad.parameter_set[BuiltinParameter::PAD_HEIGHT] = p->h * 1_mm;
+            pad.parameter_set[BuiltinParameter::PAD_WIDTH] = p->w * 1_mm;
             if (p->stack == FOOTAG_PADSTACK_SMD_RRECT) {
-                pad.parameter_set[ParameterID::CORNER_RADIUS] = p->param * 1_mm;
+                pad.parameter_set[BuiltinParameter::CORNER_RADIUS] = p->param * 1_mm;
             }
         }
         if (p->stack == FOOTAG_PADSTACK_TH_ROUND || p->stack == FOOTAG_PADSTACK_TH_ROUND_RPAD) {
-            pad.parameter_set[ParameterID::HOLE_DIAMETER] = p->holediam * 1_mm;
+            pad.parameter_set[BuiltinParameter::HOLE_DIAMETER] = p->holediam * 1_mm;
         }
     }
 

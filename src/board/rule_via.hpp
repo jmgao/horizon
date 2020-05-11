@@ -16,6 +16,8 @@ public:
 
     RuleMatch match;
     UUID padstack;
+
+    const ParameterDef parameter_def;
     ParameterSet parameter_set;
 };
 } // namespace horizon

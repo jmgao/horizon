@@ -41,7 +41,7 @@ void ToolPlacePad::create_pad(const Coordi &pos)
     auto uu = UUID::random();
     temp = &pkg->pads.emplace(uu, Pad(uu, padstack)).first->second;
     temp->placement.shift = pos;
-    for (auto &p : padstack->parameters_required) {
+    for (auto &p : padstack->parameter_def.parameters_required) {
         temp->parameter_set[p] = padstack->parameter_set.at(p);
     }
     if (pkg->pads.size() == 1) { // first pad

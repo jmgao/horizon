@@ -16,6 +16,11 @@ Pad::Pad(const UUID &uu, const Padstack *ps) : uuid(uu), pool_padstack(ps), pads
 {
 }
 
+const ParameterDef *Pad::parameter_def() const
+{
+    return &padstack.parameter_def;
+}
+
 json Pad::serialize() const
 {
     json j;

@@ -48,6 +48,7 @@ PartinfoPreferencesEditor::PartinfoPreferencesEditor(BaseObjectType *cobject, co
     partinfo_preferred_distributor_combo->append("Mouser");
     partinfo_preferred_distributor_combo->append("Newark");
     partinfo_preferred_distributor_combo->append("RS");
+    partinfo_preferred_distributor_combo->append("LCSC");
 
     bind_widget(partinfo_enable_switch, partinfo_preferences.enable);
     partinfo_enable_switch->property_active().signal_changed().connect([this] { preferences.signal_changed().emit(); });
